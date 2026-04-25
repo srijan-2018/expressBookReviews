@@ -27,29 +27,32 @@ public_users.post("/register", (req, res) => {
 
 
 // ✅ Task 10: Get all books (Async + Axios)
-public_users.get('/', async function (req, res) {
-  try {
-    const response = await axios.get('http://localhost:5000/');
-    return res.status(200).json(response.data);
-  } catch (error) {
-    return res.status(500).json({ message: "Error fetching books" });
-  }
-});
+public_users.get('/books', async function (req, res) {
+    try {
+      return res.status(200).json(books);
+    } catch (error) {
+      return res.status(500).json({ message: "Error fetching books" });
+    }
+  });
 
 
 // ✅ Task 11: Get book by ISBN (Async + Axios)
-public_users.get('/isbn/:isbn', function (req, res) {
+public_users.get('/isbn/:isbn', async function (req, res) {
     const isbn = req.params.isbn;
   
-    const book = books[isbn];
+    try {
+      const response = await new Promise((resolve, reject) => {
+        const book = books[isbn];
+        if (book) resolve(book);
+        else reject("Book not found");
+      });
   
-    if (!book) {
-      return res.status(404).json({ message: "Book not found" });
+      return res.status(200).json(response);
+  
+    } catch (err) {
+      return res.status(404).json({ message: err });
     }
-  
-    return res.status(200).json(book);
   });
-
 
 // ✅ Task 12: Get books by author (Async + Axios)
 public_users.get('/author/:author', function (req, res) {
